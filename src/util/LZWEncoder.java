@@ -11,12 +11,13 @@ public class LZWEncoder {
 	private ArrayList<Integer> outputCode= new ArrayList<Integer>();
 	private ArrayList<Character> inputchars= new ArrayList<Character>();
 	
+	//função que recebe o arquivo a ser codificado e o arquivo a receber a versão codificada
 	public void lzwencode(RandomAccessFile arq,RandomAccessFile cod) throws IOException {
 		arq.seek(0);
 		cod.setLength(0);
-		readInputFile(arq);
-		encode();
-		writeToFile(cod);
+		readInputFile(arq);// le todos os chares do arquivo original e os guarda numa lista
+		encode(); // gera os codigos e os armazena em uma lista de inteiros
+		writeToFile(cod); // escreve os codigos gerados no encode 
 	}
 
 	public void readInputFile(RandomAccessFile arq)
@@ -39,6 +40,7 @@ public class LZWEncoder {
 	}
 	public void encode()
 	{
+		//construção do dicionario inicial
 		HashMap<String,Integer> dictionary= new HashMap<String,Integer>();
 		for(int i=0;i<256;i++)
 		{
@@ -48,27 +50,29 @@ public class LZWEncoder {
 		StringBuilder str= new StringBuilder();
 		String symbol=null;
 		str.setLength(0);
+		//verifica todos os caracteres do arquivo
 		for(int i = 0; i < inputchars.size(); i++) {
 
 			symbol=""+inputchars.get(i);
-			if(dictionary.containsKey(str.toString()+symbol))
+			if(dictionary.containsKey(str.toString()+symbol))//verifica se ha ocorrencia do da string anterior + novo caracter da lista
 			{
 
 				str=str.append(symbol);
 			}
 			else
 			{
-				outputCode.add(dictionary.get(str.toString()));
-				dictionary.put(str.toString()+symbol, nextCode);
+				outputCode.add(dictionary.get(str.toString())); //codifica string/caracter atual
+				dictionary.put(str.toString()+symbol, nextCode); //adiciona nova ocorrencia ao dicionario
 				nextCode++;
 				str.setLength(0);
 				str.append(symbol);
 
 			}
 		}
-		outputCode.add(dictionary.get(str.toString()));
+		outputCode.add(dictionary.get(str.toString()));//codifica string/caracter restante
 	}
-
+	
+	//escreve todos os codigos gerados no arquivo de saida 
 	public void writeToFile(RandomAccessFile cod)
 	{
 

@@ -40,6 +40,7 @@ public class Main {
 			tmpArq04 = new RandomAccessFile("data/arq4" + ".db", "rw");
 			String pathIndex="data/" + filePath+ "Index"+ ".db";
 			
+			//cria o index quando o programa é inicializado
 			try (RandomAccessFile indxArq = new RandomAccessFile(pathIndex,"rw")){
 				System.out.println("Making first index instance");
 				
@@ -101,7 +102,7 @@ public class Main {
 								tmpTransactions, tmpBalance, arq);
 						if (tmpCheck) {
 							System.out.println("Acc Created");
-							IndexMaker.makeIndexFile(arq, indxArq);
+							IndexMaker.makeIndexFile(arq, indxArq);//atualiza index
 						}
 						else
 							System.out.println("Failed to Create Acc");
@@ -381,6 +382,7 @@ public class Main {
 				}
 					break;
 				case 9: {
+					//Recria o index manualmente, caso queira 
 					System.out.println("Creating Index file");
 					
 					try (RandomAccessFile indxArq = new RandomAccessFile(pathIndex,"rw")){
@@ -397,23 +399,27 @@ public class Main {
 					break;
 				case 10: {
 					System.out.println("LZWcompressing: ");
+					//inicializa e reseta arquivos necessarios segundo o caminho e versão 
 					String pathCompress = "data/"+filePath+"Compressao"+currentVersion+".db";
 					String pathTXT="data/"+filePath+".txt";
 					RandomAccessFile compFile = new RandomAccessFile(pathCompress,"rw");
 					RandomAccessFile txtFile = new RandomAccessFile(pathTXT,"rw");
 					compFile.setLength(0);
 					txtFile.setLength(0);
+				
 					try (RandomAccessFile indxArq = new RandomAccessFile(pathIndex,"rw")){
-						long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();//começa a contar o tempo das operações
 						System.out.println("Making txt file:"+pathTXT);
-						BDStringfier.makeTXT(arq, indxArq, pathTXT);
+						BDStringfier.makeTXT(arq, indxArq, pathTXT); // faz um txt com as contas do arquivo
 						System.out.println("Making compression....");
 						LZWEncoder lzwEnc = new LZWEncoder();
-						lzwEnc.lzwencode(txtFile, compFile);
+						lzwEnc.lzwencode(txtFile, compFile); // chama as operações de LZW enconding passando o TXTresultado e arquivo para receber compressão
 						System.out.println("Done!");
-						long timeTaken = System.currentTimeMillis() - startTime;
+						long timeTaken = System.currentTimeMillis() - startTime;//calcula o tempo gasto
 						StringBuilder sb = new StringBuilder();
 						//System.out.println(compFile.length() +" "+ txtFile.length());
+						
+						//verifica se houve perda ou ganho no tamanho do arquivo e faz os calculos 
 						if (txtFile.length()>compFile.length()) {
 							sb.append("Gain = %");
 							double gain =100.0 - ((double)compFile.length()/txtFile.length())*100.0;
@@ -427,7 +433,7 @@ public class Main {
 						sb.append(timeTaken);
 						sb.append(" millis");
 						System.out.println(sb.toString());	
-						currentVersion++;
+						currentVersion++; //avança para proxima instancia de conversão
 						System.out.println("Next compression will be: "+currentVersion);
 				
 					} catch (Exception e) {
@@ -438,6 +444,7 @@ public class Main {
 				}
 					break;
 				case 11: {
+					//inicializa e reseta arquivos necessarios segundo o caminho e versão escolhida
 					System.out.println("LZWDecompressing: ");
 					System.out.print("What version do you wish to decompress? ");
 					currentVersion= sc.nextInt();
@@ -450,16 +457,17 @@ public class Main {
 					try(RandomAccessFile indxArq = new RandomAccessFile(pathIndex,"rw")) {
 						System.out.println("Decoding file: "+pathComprimed);
 						LZWDecoder lzwDec= new LZWDecoder();
-						lzwDec.lzwdecode(compFile,decompFile);
+						lzwDec.lzwdecode(compFile,decompFile); //decodifica em um TXT o arquivo codificado anteriormente 
 						System.out.println("Decompressed");
 						System.out.println("Loading this file");
-						BDStringfier.readTXT(arq, pathDecompress);
+						BDStringfier.readTXT(arq, pathDecompress); // transforma o txt descodificado em contas carregando-o no arquivo
 						System.out.println("Loaded");
-						IndexMaker.makeIndexFile(arq, indxArq);
+						IndexMaker.makeIndexFile(arq, indxArq); //atualiza index
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					decompFile.close();
+					compFile.close();
 				}
 					break;
 				case 12: {

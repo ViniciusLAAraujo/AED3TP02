@@ -11,6 +11,7 @@ import entities.Conta;
 
 public class BDStringfier {
 	
+	//recebe o arquivo e seu index juntamente de um caminho para transformar as contas do arquivo em linhas de um TXT
 	public static void makeTXT(RandomAccessFile arq,RandomAccessFile indxArq,String path) throws IOException {
 		if (arq.length()==0||indxArq.length()==0)
 			return;
@@ -19,7 +20,7 @@ public class BDStringfier {
 			Conta tmpAcc;
 			arq.seek(0);
 			String lastId =""+ arq.readInt();			
-			bw.write(lastId);
+			bw.write(lastId);//escreve sempre o ultimo id como primeira linha
 			bw.newLine();
 			indxArq.seek(0);
 			int indxTam=indxArq.readInt();
@@ -27,7 +28,7 @@ public class BDStringfier {
 				tmpId=indxArq.readInt();
 				indxArq.readInt();
 				tmpAcc=CRUD.readIndex(tmpId, arq, indxArq);
-				bw.write(tmpAcc.txtWriter());
+				bw.write(tmpAcc.txtWriter());//função que passa os dados de uma Conta para TXT separando os dados por |
 				bw.newLine();
 			}
 			
@@ -37,6 +38,7 @@ public class BDStringfier {
 		}
 	}
 	
+	//função que recebe um arquivo para se escrever binariamente as contas lidas de outro arquivo TXT
 	public static void readTXT(RandomAccessFile arq,String path) throws IOException {
 		arq.setLength(0);
 		try(BufferedReader br = new BufferedReader(new FileReader(path))) {
@@ -46,7 +48,7 @@ public class BDStringfier {
 			arq.writeInt(lastId);
 			while (br.ready()) {
 				Conta tmpAcc = new Conta();
-				tmpAcc.txtReader(br.readLine());
+				tmpAcc.txtReader(br.readLine()); //função que passa o TXT de uma linha em um Conta separando dados por |
 				byte[] accBytes=tmpAcc.toByteArray();
 				arq.writeByte(0);
 				arq.writeInt(accBytes.length);

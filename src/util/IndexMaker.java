@@ -8,6 +8,7 @@ import entities.Conta;
 
 public class IndexMaker {
 	
+	//função que recebe o arquivo original e um arquivo para ser escrito os indices
 	public static boolean makeIndexFile(RandomAccessFile arq,RandomAccessFile indxArq) {
 		try {
 			indxArq.setLength(0);
@@ -17,12 +18,11 @@ public class IndexMaker {
 			arq.readInt();
 			ArrayList<Long> positions = new ArrayList<>();
 			ArrayList<Integer> indexes = new ArrayList<>();
-			readValidPositionsAndIndex(arq, positions,indexes);
-			//System.out.println("number of valid positions"+positions.size());
-			//System.out.println("number of valid indexes"+indexes.size());
+			readValidPositionsAndIndex(arq, positions,indexes); // carrega index e posições validas
 			if (positions.size()==0)
 				return false;
-			indxArq.writeInt(positions.size());
+			indxArq.writeInt(positions.size());//sempre o primeiro numero do arquivo de index é o numero de valores validos que o mesmo possui
+			//escreve de maneira pareada os index e suas posições 
 			for(int i =0;i<positions.size();i++) {
 				indxArq.writeInt(indexes.get(i));
 				indxArq.writeInt(positions.get(i).intValue());
@@ -37,6 +37,7 @@ public class IndexMaker {
 		return false;
 	} 
 	
+	//função que le todas as posições validas e index de um arquivo
 	public static void readValidPositionsAndIndex(RandomAccessFile arq,ArrayList<Long> positions,ArrayList<Integer> indexes) {
 		
 		byte tmpLapid;
